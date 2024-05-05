@@ -5,7 +5,7 @@ import com.example.vkproductslist.domain.model.ProductUI
 import com.example.vkproductslist.domain.model.Products
 
 fun ProductResponse.toProduct (): ProductUI.Product {
-    return ProductUI.Product (category, description, id, price, rating, thumbnail, title)
+    return ProductUI.Product (category, description, id, price, thumbnail, title)
 }
 
 fun List<ProductResponse>.toProducts(): List<ProductUI.Product> {

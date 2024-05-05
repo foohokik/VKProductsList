@@ -4,7 +4,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 xmlns:app="http://schemas.android.com/apk/res-auto"
-tools:context=".presentation.FullProductFragment">
+tools:context=".presentation.fullproductpage.FullProductFragment">
 
 
 <com.google.android.material.appbar.AppBarLayout
@@ -73,33 +73,30 @@ tools:context=".presentation.FullProductFragment">
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_title_full_article"
+                    android:id="@+id/tv_title_full_product"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Title"
-                    android:textSize="16dp"/>
+                    android:gravity="center"
+                    android:textSize="20sp" />
 
-                <TextView
-                    android:id="@+id/tv_date_full_article"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Date of article"
-                    android:textSize="16dp"/>
-
-                <TextView
-                    android:id="@+id/tv_source_full_article"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Source"
-                    android:textSize="16dp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/tv_full_article"
+            android:id="@+id/tv_full_product_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Описание" />
+            android:textSize="16sp"
+            />
+
+        <TextView
+            android:id="@+id/tv_full_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:textSize="20sp" />
 
     </LinearLayout>
 

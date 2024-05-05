@@ -12,5 +12,9 @@ interface ProductsAPI {
         @Query("limit") limit: Int,
         @Query("skip") skip: Int
     ): NetworkResult<ProductsResponse>
+    @GET("products/search")
+    suspend fun searchProducts(
+        @Query("q") searchQuery: String
+    ): NetworkResult<ProductsResponse>
 
 }

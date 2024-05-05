@@ -1,18 +1,18 @@
 package com.example.vkproductslist.domain.model
 
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 sealed class ProductUI {
+  @Parcelize
+  data class Product(
+      val category: String = "",
+      val description: String = "",
+      val id: Int = 0,
+      val price: Int = 0,
+      val thumbnail: String = "",
+      val title: String = ""
+  ) : ProductUI(), Parcelable
 
-    data class Product(
-        val category: String,
-        val description: String,
-        val id: Int,
-        val price: Int,
-        val rating: Double,
-        val thumbnail: String,
-        val title: String
-    ) : Serializable, ProductUI()
-
-    object Loading : ProductUI()
+  object Loading : ProductUI()
 }

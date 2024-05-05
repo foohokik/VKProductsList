@@ -1,4 +1,4 @@
-package com.example.vkproductslist.presentation
+package com.example.vkproductslist.presentation.products
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,8 +12,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkproductslist.R
-import com.example.vkproductslist.presentation.adapter.ProductAdapter
 import com.example.vkproductslist.databinding.FragmentProductsBinding
+import com.example.vkproductslist.presentation.fullproductpage.FullProductFragment
+import com.example.vkproductslist.presentation.search.SearchFragment
+import com.example.vkproductslist.presentation.SideEffects
+import com.example.vkproductslist.presentation.adapter.ProductAdapter
 import com.example.vkproductslist.presentation.pagination.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -28,9 +31,7 @@ class ProductsFragment : Fragment() {
   private lateinit var productAdapter: ProductAdapter
   private val viewModel: ProductsViewModel by viewModels()
   private val onScrollListener by lazy {
-    OnScrollListener(
-      viewModel, binding.rvProducts.layoutManager as LinearLayoutManager
-    )
+    OnScrollListener(viewModel, binding.rvProducts.layoutManager as LinearLayoutManager)
   }
 
   override fun onCreateView(
@@ -45,6 +46,11 @@ class ProductsFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initViews()
+    navigateToSearch()
+    observe()
+  }
+
+  private fun observe() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         launch { viewModel.productsFlow.collect { productAdapter.setItems(it.products) } }
@@ -61,6 +67,16 @@ class ProductsFragment : Fragment() {
         addOnScrollListener(onScrollListener)
       }
 
+  private fun navigateToSearch() {
+    binding.imageButtonSearch.setOnClickListener {
+      parentFragmentManager
+          .beginTransaction()
+          .addToBackStack(null)
+          .replace(R.id.main_container_view, SearchFragment())
+          .commit()
+    }
+  }
+
   private fun handleSideEffects(sideEffects: SideEffects) {
     when (sideEffects) {
       is SideEffects.ErrorEffect -> {
@@ -73,10 +89,10 @@ class ProductsFragment : Fragment() {
       }
       is SideEffects.ClickEffect -> {
         parentFragmentManager
-          .beginTransaction()
-          .addToBackStack(null)
-          .replace(R.id.main_container_view, FullProductFragment.getInstance(sideEffects.product))
-          .commit()
+            .beginTransaction()
+            .addToBackStack(null)
+            .replace(R.id.main_container_view, FullProductFragment.getInstance(sideEffects.product))
+            .commit()
       }
       else -> {}
     }

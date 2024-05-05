@@ -13,5 +13,9 @@ class ProductsRepoImpl @Inject constructor(private val api: ProductsAPI) : Produ
         val result = api.getProducts(limit, skip)
         return result.toNetworkResultProducts()
     }
+    override suspend fun searchProducts(searchQuery: String): NetworkResult<Products> {
+        val result = api.searchProducts(searchQuery)
+        return result.toNetworkResultProducts()
+    }
 
 }
