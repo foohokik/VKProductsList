@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 @HiltViewModel
 class FullProductViewModel @Inject constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
@@ -23,17 +24,16 @@ class FullProductViewModel @Inject constructor(savedStateHandle: SavedStateHandl
   }
 
   private fun setContentScreen() {
-    if (product == null) {
-      _contentScreen.value =
-          contentScreen.value.copy(
-              title = "",
-              description = "Продукт не виден",
-              price = 0,
-              thumbnail = "",
-              id = 0,
-              category = "")
-    } else {
-      product?.let { _contentScreen.value = it }
+      _contentScreen.update { state ->
+          product
+              ?: state.copy(
+                  title = "",
+                  description = "",
+                  price = 0,
+                  thumbnail = "",
+                  id = 0,
+                  category = "")
+      }
     }
   }
-}
+

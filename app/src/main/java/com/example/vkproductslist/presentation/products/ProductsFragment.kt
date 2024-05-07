@@ -53,7 +53,7 @@ class ProductsFragment : Fragment() {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         launch { viewModel.productsFlow.collect { productAdapter.setItems(it.products) } }
         launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-          launch { viewModel.stateProgressBar.collect(::viewState) }
+          launch { viewModel.stateProgressBar.collect(::renderLoading) }
       }
     }
   }
@@ -99,7 +99,7 @@ class ProductsFragment : Fragment() {
     }
   }
 
-    private fun viewState (isLoading: Boolean) {
+    private fun renderLoading (isLoading: Boolean) {
         if (!isLoading) {
             with(binding){
                 progressBar.visibility = View.GONE

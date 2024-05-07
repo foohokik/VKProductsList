@@ -39,7 +39,10 @@ class FullProductFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
 
     initListeners()
+    observe()
+  }
 
+  private fun observe() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         launch { viewModel.contentScreen.collect(::setContent) }
@@ -66,7 +69,6 @@ class FullProductFragment : Fragment() {
 
   companion object {
     const val ARG_ID = "ARG_ID"
-
     @JvmStatic
     fun getInstance(product: ProductUI.Product): FullProductFragment {
       return FullProductFragment().apply { arguments = bundleOf(ARG_ID to product) }

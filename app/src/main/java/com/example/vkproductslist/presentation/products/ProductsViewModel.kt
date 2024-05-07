@@ -56,7 +56,7 @@ constructor(
     viewModelScope.launch(exceptionHandler) {
       withContext(ioDispatcher) {
         isLoading = true
-        if (skip >= 20) {
+        if (skip >= LIMIT) {
           _productsFlow.update {
             it.copy(products = productsFlow.value.products + ProductUI.Loading)
           }
