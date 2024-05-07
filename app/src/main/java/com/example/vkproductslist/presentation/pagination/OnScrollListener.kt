@@ -1,5 +1,6 @@
 package com.example.vkproductslist.presentation.pagination
 
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 

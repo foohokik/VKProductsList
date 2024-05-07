@@ -1,10 +1,7 @@
 package com.example.vkproductslist.presentation.adapter
 
-
-import android.provider.Settings.System.getString
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.vkproductslist.R
 import com.example.vkproductslist.databinding.ItemProductBinding
 import com.example.vkproductslist.domain.model.ProductUI
 

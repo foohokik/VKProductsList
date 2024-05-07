@@ -1,7 +1,5 @@
-package com.example.appnews.core.network
+package com.example.vkproductslist.core.network
 
-import com.example.vkproductslist.core.network.NetworkResult
-import com.example.vkproductslist.core.network.NetworkResultCallAdapter
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Retrofit

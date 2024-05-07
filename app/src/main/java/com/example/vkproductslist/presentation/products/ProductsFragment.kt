@@ -13,11 +13,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkproductslist.R
 import com.example.vkproductslist.databinding.FragmentProductsBinding
-import com.example.vkproductslist.presentation.fullproductpage.FullProductFragment
-import com.example.vkproductslist.presentation.search.SearchFragment
 import com.example.vkproductslist.presentation.SideEffects
 import com.example.vkproductslist.presentation.adapter.ProductAdapter
+import com.example.vkproductslist.presentation.fullproductpage.FullProductFragment
 import com.example.vkproductslist.presentation.pagination.OnScrollListener
+import com.example.vkproductslist.presentation.search.SearchFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -30,9 +30,7 @@ class ProductsFragment : Fragment() {
 
   private lateinit var productAdapter: ProductAdapter
   private val viewModel: ProductsViewModel by viewModels()
-  private val onScrollListener by lazy {
-    OnScrollListener(viewModel, binding.rvProducts.layoutManager as LinearLayoutManager)
-  }
+  private var onScrollListener: OnScrollListener? = null
 
   override fun onCreateView(
       inflater: LayoutInflater,
@@ -55,6 +53,7 @@ class ProductsFragment : Fragment() {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         launch { viewModel.productsFlow.collect { productAdapter.setItems(it.products) } }
         launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
+          launch { viewModel.stateProgressBar.collect(::viewState) }
       }
     }
   }
@@ -62,9 +61,12 @@ class ProductsFragment : Fragment() {
   private fun initViews() =
       with(binding.rvProducts) {
         productAdapter = ProductAdapter(viewModel)
+        val manager = LinearLayoutManager(requireContext())
+        layoutManager = manager
         adapter = productAdapter
         itemAnimator = null
-        addOnScrollListener(onScrollListener)
+        onScrollListener = OnScrollListener(viewModel, manager)
+        onScrollListener?.let { listener -> addOnScrollListener(listener) }
       }
 
   private fun navigateToSearch() {
@@ -80,11 +82,11 @@ class ProductsFragment : Fragment() {
   private fun handleSideEffects(sideEffects: SideEffects) {
     when (sideEffects) {
       is SideEffects.ErrorEffect -> {
-        Toast.makeText(requireContext(), "Ошибка: " + sideEffects.err, Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), getString(R.string.error, sideEffects.err), Toast.LENGTH_LONG).show()
       }
       is SideEffects.ExceptionEffect -> {
         Toast.makeText(
-                requireContext(), "Ошибка: " + sideEffects.throwable.message, Toast.LENGTH_LONG)
+                requireContext(), getString(R.string.error, sideEffects.throwable.message), Toast.LENGTH_LONG )
             .show()
       }
       is SideEffects.ClickEffect -> {
@@ -94,13 +96,21 @@ class ProductsFragment : Fragment() {
             .replace(R.id.main_container_view, FullProductFragment.getInstance(sideEffects.product))
             .commit()
       }
-      else -> {}
     }
   }
 
+    private fun viewState (isLoading: Boolean) {
+        if (!isLoading) {
+            with(binding){
+                progressBar.visibility = View.GONE
+                rvProducts.visibility = View.VISIBLE
+            }
+        }
+    }
+
   override fun onDestroyView() {
     super.onDestroyView()
-    binding.rvProducts.removeOnScrollListener(onScrollListener)
+    onScrollListener?.let { binding.rvProducts.removeOnScrollListener(it) }
     _binding = null
   }
 }

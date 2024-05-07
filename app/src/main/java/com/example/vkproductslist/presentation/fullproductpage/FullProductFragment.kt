@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide
 import com.example.vkproductslist.R
 import com.example.vkproductslist.databinding.FragmentFullProductBinding
 import com.example.vkproductslist.domain.model.ProductUI
-import com.example.vkproductslist.presentation.products.ProductsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -39,7 +38,7 @@ class FullProductFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    backTo()
+    initListeners()
 
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -56,13 +55,8 @@ class FullProductFragment : Fragment() {
         tvFullPrice.text = getString(R.string.price, state.price)
       }
 
-  private fun backTo() {
-    binding.imageButtonBack.setOnClickListener {
-      parentFragmentManager
-          .beginTransaction()
-          .replace(R.id.main_container_view, ProductsFragment())
-          .commit()
-    }
+  private fun initListeners() {
+    binding.imageButtonBack.setOnClickListener { parentFragmentManager.popBackStack() }
   }
 
   override fun onDestroyView() {

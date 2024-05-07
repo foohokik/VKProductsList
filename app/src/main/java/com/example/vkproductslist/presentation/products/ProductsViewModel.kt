@@ -15,12 +15,14 @@ import com.example.vkproductslist.presentation.pagination.PaginationListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class ProductsViewModel
@@ -33,38 +35,53 @@ constructor(
   private val _productsFlow = MutableStateFlow(Products())
   val productsFlow = _productsFlow.asStateFlow()
 
+  private val _stateProgressBar = MutableStateFlow(true)
+  val stateProgressBar = _stateProgressBar.asStateFlow()
+
   private val _sideEffects = Channel<SideEffects>()
   val sideEffects = _sideEffects.receiveAsFlow()
 
   private var skip = 0
   private var isLoading = false
 
+  private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    viewModelScope.launch { _sideEffects.send(SideEffects.ExceptionEffect(throwable)) }
+  }
+
   init {
     getProducts()
   }
 
   private fun getProducts() {
-    viewModelScope.launch(ioDispatcher) {
-      isLoading = true
-      if (skip >= 20) {
-        _productsFlow.update { it.copy(products = productsFlow.value.products + ProductUI.Loading) }
-      }
-      val result = repository.getProducts(LIMIT, skip)
-      result
-          .onSuccess { products ->
-            _productsFlow.value =
-                products.copy(products = productsFlow.value.products + products.products)
-            if (skip < products.total) {
-              skip += LIMIT
-            }
+    viewModelScope.launch(exceptionHandler) {
+      withContext(ioDispatcher) {
+        isLoading = true
+        if (skip >= 20) {
+          _productsFlow.update {
+            it.copy(products = productsFlow.value.products + ProductUI.Loading)
           }
-          .onError { _, message -> _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty())) }
-          .onException { throwable -> _sideEffects.send(SideEffects.ExceptionEffect(throwable)) }
+        } else {
+          _stateProgressBar.value = isLoading
+        }
+        val result = repository.getProducts(LIMIT, skip)
+        result
+            .onSuccess { products ->
+              _productsFlow.value =
+                  products.copy(products = productsFlow.value.products + products.products)
+              if (skip < products.total) {
+                skip += LIMIT
+              }
+            }
+            .onError { _, message -> _sideEffects.send(SideEffects.ErrorEffect(message.orEmpty())) }
+            .onException { throwable -> _sideEffects.send(SideEffects.ExceptionEffect(throwable)) }
 
-      _productsFlow.value =
-          productsFlow.value.copy(
-              products = productsFlow.value.products.filterIsInstance<ProductUI.Product>())
-      isLoading = false
+        _productsFlow.update {
+          it.copy(products = productsFlow.value.products.filterIsInstance<ProductUI.Product>())
+        }
+
+        isLoading = false
+        _stateProgressBar.value = isLoading
+      }
     }
   }
 

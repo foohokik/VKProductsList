@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkproductslist.R
 import com.example.vkproductslist.core.hideKeyboard
 import com.example.vkproductslist.core.showKeyBoard
@@ -18,7 +19,6 @@ import com.example.vkproductslist.databinding.FragmentSearchBinding
 import com.example.vkproductslist.presentation.SideEffects
 import com.example.vkproductslist.presentation.adapter.ProductAdapter
 import com.example.vkproductslist.presentation.fullproductpage.FullProductFragment
-import com.example.vkproductslist.presentation.products.ProductsFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -63,10 +63,14 @@ class SearchFragment : Fragment() {
   private fun observe() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        launch { viewModel.searchProductsFlow.collect { productAdapter.setItems(it.products) } }
+        launch {
+          viewModel.searchFlowState.collect { state ->
+            productAdapter.setItems(state.product.products)
+            renderKeyboard(state.keyboardState)
+            renderQuery(state.query)
+          }
+        }
         launch { viewModel.sideEffects.collect { handleSideEffects(it) } }
-        launch { viewModel.showKeyboard.collect(::renderKeyboard) }
-        launch { viewModel.queryFlow.collect { renderQuery(it) } }
       }
     }
   }
@@ -74,6 +78,8 @@ class SearchFragment : Fragment() {
   private fun initViews() =
       with(binding.rvSearch) {
         productAdapter = ProductAdapter(viewModel)
+        val manager = LinearLayoutManager(requireContext())
+        layoutManager = manager
         adapter = productAdapter
         itemAnimator = null
       }
@@ -81,10 +87,7 @@ class SearchFragment : Fragment() {
   private fun backArrow() {
     binding.ivButtonBackSearch.setOnClickListener {
       it.context.hideKeyboard(it)
-      parentFragmentManager
-          .beginTransaction()
-          .replace(R.id.main_container_view, ProductsFragment())
-          .commit()
+      parentFragmentManager.popBackStack()
     }
   }
 
@@ -121,11 +124,15 @@ class SearchFragment : Fragment() {
   private fun handleSideEffects(sideEffects: SideEffects) {
     when (sideEffects) {
       is SideEffects.ErrorEffect -> {
-        Toast.makeText(requireContext(), "Ошибка: " + sideEffects.err, Toast.LENGTH_LONG).show()
+        Toast.makeText(
+                requireContext(), getString(R.string.error, sideEffects.err), Toast.LENGTH_LONG)
+            .show()
       }
       is SideEffects.ExceptionEffect -> {
         Toast.makeText(
-                requireContext(), "Ошибка: " + sideEffects.throwable.message, Toast.LENGTH_LONG)
+                requireContext(),
+                getString(R.string.error, sideEffects.throwable.message),
+                Toast.LENGTH_LONG)
             .show()
       }
       is SideEffects.ClickEffect -> {
@@ -135,7 +142,6 @@ class SearchFragment : Fragment() {
             .replace(R.id.main_container_view, FullProductFragment.getInstance(sideEffects.product))
             .commit()
       }
-      else -> {}
     }
   }
 

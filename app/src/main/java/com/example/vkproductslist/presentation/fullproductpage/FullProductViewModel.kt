@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 @HiltViewModel
-class FullProductViewModel @Inject constructor(private val savedStateHandle: SavedStateHandle) :
-    ViewModel() {
+class FullProductViewModel @Inject constructor(savedStateHandle: SavedStateHandle) : ViewModel() {
 
   private val _contentScreen = MutableStateFlow(ProductUI.Product())
   val contentScreen = _contentScreen.asStateFlow()
