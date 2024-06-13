@@ -1,6 +1,7 @@
 package com.example.vkproductslist.presentation.products
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -82,9 +83,11 @@ class ProductsFragment : Fragment() {
   private fun handleSideEffects(sideEffects: SideEffects) {
     when (sideEffects) {
       is SideEffects.ErrorEffect -> {
+          Log.d("PPP", "error  +  " + sideEffects.err)
         Toast.makeText(requireContext(), getString(R.string.error, sideEffects.err), Toast.LENGTH_LONG).show()
       }
       is SideEffects.ExceptionEffect -> {
+          Log.d("PPP", "error  +  " + sideEffects.throwable.message)
         Toast.makeText(
                 requireContext(), getString(R.string.error, sideEffects.throwable.message), Toast.LENGTH_LONG )
             .show()

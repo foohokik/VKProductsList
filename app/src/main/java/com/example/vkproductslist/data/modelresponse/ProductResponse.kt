@@ -7,7 +7,7 @@ data class ProductResponse(
     val discountPercentage: Double,
     val id: Int,
     val images: List<String>,
-    val price: Int,
+    val price: Float,
     val rating: Double,
     val stock: Int,
     val thumbnail: String,
