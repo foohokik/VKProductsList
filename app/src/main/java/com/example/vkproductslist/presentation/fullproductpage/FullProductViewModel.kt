@@ -29,7 +29,7 @@ class FullProductViewModel @Inject constructor(savedStateHandle: SavedStateHandl
               ?: state.copy(
                   title = "",
                   description = "",
-                  price = 0f,
+                  price = 0.0,
                   thumbnail = "",
                   id = 0,
                   category = "")

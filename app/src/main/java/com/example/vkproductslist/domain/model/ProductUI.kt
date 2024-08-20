@@ -9,7 +9,7 @@ sealed class ProductUI {
       val category: String = "",
       val description: String = "",
       val id: Int = 0,
-      val price: Float = 0.0f,
+      val price: Double = 0.0,
       val thumbnail: String = "",
       val title: String = ""
   ) : ProductUI(), Parcelable
